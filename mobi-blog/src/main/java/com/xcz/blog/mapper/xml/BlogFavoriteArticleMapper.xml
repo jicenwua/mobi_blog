@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xcz.blog.mapper.BlogFavoriteArticleMapper">
+
+    <resultMap id="BlogFavoriteArticleResult" type="com.xcz.blog.domain.BlogFavoriteArticle">
+        <id property="id" column="id"/>
+        <result property="favoriteId" column="favorite_id"/>
+        <result property="articleId" column="article_id"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="selectByFavoriteIdAndArticleId" resultMap="BlogFavoriteArticleResult">
+        SELECT *
+        FROM blog_favorite_article
+        WHERE favorite_id = #{favoriteId}
+          AND article_id = #{articleId}
+        LIMIT 1
+    </select>
+
+    <select id="countByUserIdAndArticleId" resultType="int">
+        SELECT COUNT(1)
+        FROM blog_favorite_article fa
+                 INNER JOIN blog_favorite f ON fa.favorite_id = f.favorite_id
+        WHERE f.user_id = #{userId}
+          AND fa.article_id = #{articleId}
+          AND f.del_flag = 0
+    </select>
+
+    <select id="selectByUserIdAndArticleId" resultMap="BlogFavoriteArticleResult">
+        SELECT fa.*
+        FROM blog_favorite_article fa
+                 INNER JOIN blog_favorite f ON fa.favorite_id = f.favorite_id
+        WHERE f.user_id = #{userId}
+          AND fa.article_id = #{articleId}
+          AND f.del_flag = 0
+    </select>
+
+</mapper>

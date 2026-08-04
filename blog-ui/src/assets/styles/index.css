@@ -1,0 +1,234 @@
+:root {
+  --blog-primary: #ff6600;
+  --blog-primary-hover: #ff8533;
+  --blog-primary-light: rgba(255, 102, 0, 0.1);
+  --blog-primary-gradient: linear-gradient(135deg, #ff6600 0%, #ffaa66 100%);
+  --blog-primary-shadow: rgba(255, 102, 0, 0.35);
+  --blog-primary-shadow-hover: rgba(255, 102, 0, 0.45);
+  --blog-text: #333;
+  --blog-text-secondary: #999;
+  --blog-bg: #f5f5f5;
+  --blog-card-bg: #fff;
+  --blog-border: #eee;
+  --blog-grid-line: rgba(0, 0, 0, 0.03);
+  --blog-header-height: 64px;
+  --blog-max-width: 1200px;
+  --blog-sidebar-width: 320px;
+  --blog-radius: 8px;
+  --blog-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  --el-color-primary: #ff6600;
+  --el-color-primary-light-3: #ff8533;
+  --el-color-primary-light-5: #ffa366;
+  --el-color-primary-light-7: #ffc299;
+  --el-color-primary-light-8: #ffd1b3;
+  --el-color-primary-light-9: #ffe0cc;
+  --el-color-primary-dark-2: #cc5200;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--blog-text);
+  background-color: var(--blog-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.blog-grid-bg {
+  background-color: var(--blog-bg);
+  background-image:
+    linear-gradient(var(--blog-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--blog-grid-line) 1px, transparent 1px);
+  background-size: 20px 20px;
+  transition: background-color 0.5s ease;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* ── Season theme palettes ── */
+
+html.season-theme--spring {
+  --blog-primary: #f48fb1;
+  --blog-primary-hover: #f06292;
+  --blog-primary-light: rgba(244, 143, 177, 0.14);
+  --blog-primary-gradient: linear-gradient(135deg, #f48fb1 0%, #ffc2d1 100%);
+  --blog-primary-shadow: rgba(244, 143, 177, 0.4);
+  --blog-primary-shadow-hover: rgba(244, 143, 177, 0.5);
+  --blog-bg: #fff5f8;
+  --blog-border: #fce4ec;
+  --blog-grid-line: rgba(244, 143, 177, 0.1);
+  --el-color-primary: #f48fb1;
+  --el-color-primary-light-3: #f06292;
+  --el-color-primary-light-5: #f8bbd0;
+  --el-color-primary-light-7: #fce4ec;
+  --el-color-primary-light-8: #fdf0f3;
+  --el-color-primary-light-9: #fef5f7;
+  --el-color-primary-dark-2: #c2185b;
+}
+
+html.season-theme--summer {
+  --blog-primary: #67c23a;
+  --blog-primary-hover: #85ce61;
+  --blog-primary-light: rgba(103, 194, 58, 0.14);
+  --blog-primary-gradient: linear-gradient(135deg, #67c23a 0%, #95d475 100%);
+  --blog-primary-shadow: rgba(103, 194, 58, 0.35);
+  --blog-primary-shadow-hover: rgba(103, 194, 58, 0.45);
+  --blog-bg: #f2faf2;
+  --blog-border: #d4edda;
+  --blog-grid-line: rgba(103, 194, 58, 0.1);
+  --el-color-primary: #67c23a;
+  --el-color-primary-light-3: #85ce61;
+  --el-color-primary-light-5: #a4da89;
+  --el-color-primary-light-7: #d4edda;
+  --el-color-primary-light-8: #e8f5e9;
+  --el-color-primary-light-9: #f1f8f1;
+  --el-color-primary-dark-2: #529b2e;
+}
+
+html.season-theme--autumn {
+  --blog-primary: #ffb347;
+  --blog-primary-hover: #ffc76e;
+  --blog-primary-light: rgba(255, 179, 71, 0.14);
+  --blog-primary-gradient: linear-gradient(135deg, #ffb347 0%, #ffd080 100%);
+  --blog-primary-shadow: rgba(255, 179, 71, 0.4);
+  --blog-primary-shadow-hover: rgba(255, 179, 71, 0.5);
+  --blog-bg: #fffaf2;
+  --blog-border: #ffe8cc;
+  --blog-grid-line: rgba(255, 179, 71, 0.1);
+  --el-color-primary: #ffb347;
+  --el-color-primary-light-3: #ffc76e;
+  --el-color-primary-light-5: #ffd699;
+  --el-color-primary-light-7: #ffe8cc;
+  --el-color-primary-light-8: #fff3e0;
+  --el-color-primary-light-9: #fff8ee;
+  --el-color-primary-dark-2: #e69520;
+}
+
+html.season-theme--winter {
+  --blog-primary: #64b5f6;
+  --blog-primary-hover: #90caf9;
+  --blog-primary-light: rgba(100, 181, 246, 0.14);
+  --blog-primary-gradient: linear-gradient(135deg, #64b5f6 0%, #90caf9 100%);
+  --blog-primary-shadow: rgba(100, 181, 246, 0.4);
+  --blog-primary-shadow-hover: rgba(100, 181, 246, 0.5);
+  --blog-bg: #f0f8ff;
+  --blog-border: #d6eaff;
+  --blog-grid-line: rgba(100, 181, 246, 0.1);
+  --el-color-primary: #64b5f6;
+  --el-color-primary-light-3: #90caf9;
+  --el-color-primary-light-5: #b3d9fc;
+  --el-color-primary-light-7: #d6eaff;
+  --el-color-primary-light-8: #e8f4fe;
+  --el-color-primary-light-9: #f3f9ff;
+  --el-color-primary-dark-2: #42a5f5;
+}
+
+/* ── Season theme overlays ── */
+
+html.season-theme--spring,
+html.season-theme--summer,
+html.season-theme--autumn,
+html.season-theme--winter {
+  transition: background-color 0.5s ease;
+}
+
+html.season-theme--spring::before,
+html.season-theme--summer::before,
+html.season-theme--autumn::before,
+html.season-theme--winter::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.6s ease;
+}
+
+html.season-theme--spring::before {
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(255, 182, 193, 0.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 143, 171, 0.12) 0%, transparent 50%);
+  animation: season-petal-drift 12s ease-in-out infinite;
+}
+
+html.season-theme--summer::before {
+  background:
+    radial-gradient(ellipse at 30% 70%, rgba(103, 194, 58, 0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(82, 155, 46, 0.1) 0%, transparent 50%);
+  animation: season-summer-glow 8s ease-in-out infinite;
+}
+
+html.season-theme--autumn::before {
+  background:
+    radial-gradient(ellipse at 25% 75%, rgba(255, 179, 71, 0.16) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 25%, rgba(230, 149, 32, 0.12) 0%, transparent 50%);
+  animation: season-leaf-drift 10s ease-in-out infinite;
+}
+
+html.season-theme--winter::before {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 60%, rgba(200, 220, 255, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 40%, rgba(200, 220, 255, 0.08) 0%, transparent 40%);
+  animation: season-snow-fall 14s linear infinite;
+}
+
+html.season-theme--spring body,
+html.season-theme--summer body,
+html.season-theme--autumn body,
+html.season-theme--winter body {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes season-petal-drift {
+  0%, 100% { opacity: 0.7; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-6px); }
+}
+
+@keyframes season-summer-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+@keyframes season-leaf-drift {
+  0%, 100% { opacity: 0.75; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(4px); }
+}
+
+@keyframes season-snow-fall {
+  0% { opacity: 0.6; transform: translateY(-4px); }
+  50% { opacity: 0.9; transform: translateY(4px); }
+  100% { opacity: 0.6; transform: translateY(-4px); }
+}

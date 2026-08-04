@@ -1,0 +1,59 @@
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { fetchArticles, fetchHotTags } from '@/api/article'
+import UserProfileCard from '@/components/sidebar/UserProfileCard.vue'
+import AnnouncementCard from '@/components/sidebar/AnnouncementCard.vue'
+import LatestArticlesCard from '@/components/sidebar/LatestArticlesCard.vue'
+import TagCloudCard from '@/components/sidebar/TagCloudCard.vue'
+import LifeCountdownCard from '@/components/sidebar/LifeCountdownCard.vue'
+
+const articleCount = ref(0)
+const tagCount = ref(0)
+
+const profile = computed(() => ({
+  nickname: 'Mobi',
+  bio: '热爱技术，分享生活。专注于后端架构与前端工程化。',
+  categoryCount: 4,
+  articleCount: articleCount.value,
+  tagCount: tagCount.value,
+}))
+
+async function loadStats() {
+  try {
+    const [articleData, hotTags] = await Promise.all([
+      fetchArticles({ pageNum: 1, pageSize: 1 }),
+      fetchHotTags(100),
+    ])
+    articleCount.value = articleData?.totalElements || 0
+    tagCount.value = hotTags?.length || 0
+  } catch {
+    articleCount.value = 0
+    tagCount.value = 0
+  }
+}
+
+onMounted(loadStats)
+</script>
+
+<template>
+  <aside class="blog-sidebar">
+    <UserProfileCard :profile="profile" />
+    <AnnouncementCard />
+    <LatestArticlesCard />
+    <TagCloudCard />
+    <LifeCountdownCard />
+  </aside>
+</template>
+
+<style scoped>
+.blog-sidebar {
+  width: var(--blog-sidebar-width);
+  flex-shrink: 0;
+}
+
+@media (max-width: 992px) {
+  .blog-sidebar {
+    width: 100%;
+  }
+}
+</style>

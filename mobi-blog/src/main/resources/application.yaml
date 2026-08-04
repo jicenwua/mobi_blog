@@ -1,0 +1,165 @@
+server:
+  port: 30004
+
+spring:
+  application:
+    name: mobi-blog
+  config:
+    import:
+      - optional:nacos:${spring.application.name}.yaml
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: public
+        group: MINI_APP
+        file-extension: yaml
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+
+#nacos中配置
+#spring:
+#  servlet:
+#    multipart:
+#      enabled: true
+#      # 单个文件的最大限制（默认 1MB，这里改成了 10MB）
+#      max-file-size: 10MB
+#      # 单次请求的总大小限制（包含多个文件和表单数据，默认 10MB，这里改成了 50MB）
+#      max-request-size: 50MB
+#
+#  mail:
+#    host: smtp.qq.com
+#    port: 465
+#    username: ${YOUR_EMAIL}        # 发件邮箱，MailServiceImpl 会用作发件人
+#    password: ${YOUR_PASSWORD}          # 不是 QQ 密码
+#    default-encoding: UTF-8
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          ssl:
+#            enable: true
+#          socketFactory:
+#            class: javax.net.ssl.SSLSocketFactory
+#            port: 465
+#
+#  # Dynamic-Datasource 多数据源配置
+#  datasource:
+#    dynamic:
+#      # 默认数据源
+#      primary: master
+#      # 严格模式：false 表示匹配不到数据源时使用默认数据源
+#      strict: false
+#      # 数据源列表
+#      datasource:
+#        # 主数据源（写库）
+#        master:
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          url: ${DB_URL}
+#          username:${DB_USERNAME}
+#          password: ${DB_PASSWORD}
+#          druid:
+#            initial-size: 5
+#            min-idle: 10
+#            max-active: 20
+#            max-wait: 60000
+#            time-between-eviction-runs-millis: 60000
+#            min-evictable-idle-time-millis: 300000
+#            max-evictable-idle-time-millis: 900000
+#            validation-query: SELECT 1
+#            test-while-idle: true
+#            test-on-borrow: false
+#            test-on-return: false
+#
+#        # 从数据源（只读库）
+#        slave:
+#          enable: false
+#
+## MyBatis-Plus 配置
+#mybatis-plus:
+#  # 搜索指定包别名
+#  type-aliases-package: com.xcz
+#  # 配置 mapper 的扫描，找到所有的 mapper.xml 映射文件
+#  mapper-locations: classpath*:com/xcz/blog/mapper/xml/*Mapper.xml
+#  # 全局配置
+#  global-config:
+#    db-config:
+#      # 主键类型（AUTO: 数据库 ID 自增）
+#      id-type: AUTO
+#      # 逻辑删除配置
+#      logic-delete-field: delFlag
+#      logic-delete-value: 1
+#      logic-not-delete-value: 0
+#  # 分页配置（注意：这里应该是 mybatis-plus.global-config 下的配置）
+#  configuration:
+#    # 是否开启自动驼峰命名规则映射
+#    map-underscore-to-camel-case: true
+#    # 日志输出（开发环境可开启）
+#    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  page:
+#    overflow: false
+#    max-limit: 500
+#
+## Redis 配置
+#redis:
+#  enabled: true
+#  single:
+#    host: 127.0.0.1
+#    port: 6379
+#    password: ${YOUR_PASSWORD}
+#
+#
+#mongo:
+#  primary: primary
+#  datasources:
+#    primary:
+#      mode: standalone
+#      database: mobi_blog
+#      username: root
+#      password: ${MONGO_PASSWORD}
+#      authentication-database: admin
+#      hosts:
+#        - 127.0.0.1
+#      ports:
+#        - 27017
+#      connection-pool:
+#        max-size: 50
+#        min-size: 5
+#        max-wait-time: 30000
+#      socket:
+#        connect-timeout: 10000
+#
+#log:
+#  request:
+#    enabled: true
+#
+#
+#
+## 安全配置
+#security:
+#  # JWT 配置
+#  jwt:
+#    # 密钥
+#    secret: ${JWT_SECRET}
+#    # 过期时间（单位：毫秒）7 天
+#    expiration: 604800000
+#
+#
+#aliyun:
+#  ocr:
+#    enabled: true
+#    endpoint: ocr-api.cn-hangzhou.aliyuncs.com
+#
+#  oss:
+#    endpoint: ${ALI_ENDPOINT}
+#    access-key-id: ${ALI_KEY}
+#    access-key-secret: ${ALI_SECRET}
+#    bucketName: ${ALI_BUCKET}
+#    region: ${ALI_REGION}
+#    expireTime: 3600000
+#
+#

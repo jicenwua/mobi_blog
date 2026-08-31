@@ -20,8 +20,9 @@ public final class BlogConstants {
     /** 邮箱验证码 Redis 前缀（注册） */
     public static final String EMAIL_CODE_KEY = "blog:email:code:";
 
-    /** 邮箱验证码 Redis 前缀（重置密码） */
-    public static final String EMAIL_RESET_CODE_KEY = "blog:email:reset:";
+    public static final String EMAIL_FROZEN = "blog:email:frozen:";
+
+    public static final Duration FROZEN_TTL = Duration.ofMinutes(1);
 
     /** 验证码有效期 */
     public static final Duration EMAIL_CODE_TTL = Duration.ofMinutes(5);

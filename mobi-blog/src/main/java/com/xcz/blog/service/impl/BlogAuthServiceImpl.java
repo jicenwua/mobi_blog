@@ -160,7 +160,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
         }
 
         String code = generateCode();
-        RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_RESET_CODE_KEY + email);
+        RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_CODE_KEY + email);
         bucket.set(code, BlogConstants.EMAIL_CODE_TTL);
         mailService.sendResetPasswordCode(email, code);
     }
@@ -174,7 +174,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
     @Transactional(rollbackFor = Exception.class)
     public void resetPassword(ResetPasswordDTO dto) {
         String email = dto.getEmail().trim().toLowerCase();
-        verifyResetCode(email, dto.getVerificationCode());
+        verifyCode(email, dto.getVerificationCode());
 
         BlogUser user = getByEmail(email);
         if (user == null) {
@@ -186,7 +186,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
                 .set(BlogUser::getPassword, passwordEncoder.encode(dto.getPassword()))
                 .set(BlogUser::getUpdateTime, LocalDateTime.now()));
 
-        redisson.getBucket(BlogConstants.EMAIL_RESET_CODE_KEY + email).delete();
+        redisson.getBucket(BlogConstants.EMAIL_CODE_KEY + email).delete();
     }
 
     /**
@@ -220,19 +220,6 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
         }
     }
 
-    /**
-     * 校验重置密码验证码
-     */
-    private void verifyResetCode(String email, String code) {
-        RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_RESET_CODE_KEY + email);
-        String cachedCode = bucket.get();
-        if (cachedCode == null) {
-            throw new CaptchaExpireException();
-        }
-        if (!cachedCode.equals(code)) {
-            throw new CaptchaException("验证码错误");
-        }
-    }
 
     /**
      * 生成邮件验证码

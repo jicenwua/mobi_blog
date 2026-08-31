@@ -1,10 +1,14 @@
 package com.xcz.blog.service.impl;
 
+import com.xcz.blog.constant.BlogConstants;
 import com.xcz.blog.service.MailService;
 import com.xcz.commons.core.exception.ServiceException;
+import jakarta.annotation.Resource;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -18,10 +22,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class MailServiceImpl implements MailService {
 
-    private final JavaMailSender mailSender;
+    @Resource
+    private JavaMailSender mailSender;
 
     @Value("${spring.mail.username}")
     private String fromEmail;
+
+    private final RedissonClient redis = BlogConstants.redisson;
 
     /**
      * 向目标邮箱发送 6 位注册验证码
@@ -31,6 +38,10 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public void sendVerificationCode(String toEmail, String code) {
+        RBucket<String> frozenBucket = redis.getBucket(BlogConstants.EMAIL_FROZEN + ":" + toEmail);
+        if (!frozenBucket.setIfAbsent("1", BlogConstants.FROZEN_TTL)) {
+            throw new ServiceException("发送太频繁，请稍后再试");
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -44,6 +55,7 @@ public class MailServiceImpl implements MailService {
                     """.formatted(code), true);
             mailSender.send(message);
         } catch (Exception e) {
+            frozenBucket.delete();
             log.error("发送验证码邮件失败，目标邮箱: {}", toEmail, e);
             throw new ServiceException("验证码发送失败，请稍后重试");
         }
@@ -51,6 +63,10 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public void sendResetPasswordCode(String toEmail, String code) {
+        RBucket<String> frozenBucket = redis.getBucket(BlogConstants.EMAIL_FROZEN + ":" + toEmail);
+        if (!frozenBucket.setIfAbsent("1", BlogConstants.FROZEN_TTL)) {
+            throw new ServiceException("发送太频繁，请稍后再试");
+        }
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -64,6 +80,7 @@ public class MailServiceImpl implements MailService {
                     """.formatted(code), true);
             mailSender.send(message);
         } catch (Exception e) {
+            frozenBucket.delete();
             log.error("发送重置密码验证码邮件失败，目标邮箱: {}", toEmail, e);
             throw new ServiceException("验证码发送失败，请稍后重试");
         }

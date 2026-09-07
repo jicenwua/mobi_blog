@@ -26,7 +26,7 @@ public class AdminLogServiceImpl extends ServiceImpl<BlogAdminLogMapper, BlogAdm
      * 异步写入管理员操作日志，仅持久化操作人 ID 与操作内容。
      */
     @Override
-    @Async
+    @Async("blogThread")
     public void record(Long operatorId, String module, String operation, String targetId, String detail) {
         BlogUser operator = blogUserMapper.selectById(operatorId);
         if (operator == null || !RoleStatue.isCanPublish(operator.getRole())) {

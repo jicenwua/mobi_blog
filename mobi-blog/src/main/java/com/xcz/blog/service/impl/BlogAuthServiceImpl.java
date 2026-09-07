@@ -13,10 +13,7 @@ import com.xcz.blog.domain.enums.UserStatus;
 import com.xcz.blog.mapper.BlogUserMapper;
 import com.xcz.blog.service.BlogAuthService;
 import com.xcz.blog.service.MailService;
-import com.xcz.commons.core.exception.CaptchaException;
 import com.xcz.commons.core.exception.ServiceException;
-import com.xcz.commons.core.exception.user.CaptchaExpireException;
-import com.xcz.commons.core.exception.user.UserPasswordNotMatchException;
 import com.xcz.commons.core.utils.ServletUtils;
 import com.xcz.commons.core.utils.ip.IpUtils;
 import com.xcz.commons.core.utils.ip.Ipv6Utils;
@@ -139,8 +136,6 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
             map.put("nickname", loginUser.getName());
             map.put("role", loginUser.getAUthorityList());
             return map;
-        } catch (UserPasswordNotMatchException e) {
-            throw new UserPasswordNotMatchException();
         } catch (Exception e) {
             log.warn("博客用户登录失败，邮箱: {}, 原因: {}", email, e.getMessage());
             throw e;
@@ -213,10 +208,10 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
         RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_CODE_KEY + email);
         String cachedCode = bucket.get();
         if (cachedCode == null) {
-            throw new CaptchaExpireException();
+            throw new IllegalArgumentException("请输入验证码");
         }
         if (!cachedCode.equals(code)) {
-            throw new CaptchaException("验证码错误");
+            throw new ServiceException("验证码错误");
         }
     }
 

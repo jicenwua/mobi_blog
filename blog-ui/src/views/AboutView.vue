@@ -11,8 +11,8 @@ const skills = ref(['Java', 'Spring Boot', 'Vue 3', 'MongoDB', 'Redis', 'Docker'
 
     <el-card shadow="never" class="about-card">
       <div class="about-card__content">
-        <el-avatar :size="80" class="about-card__avatar">M</el-avatar>
-        <h2>Mobi Blog</h2>
+        <el-avatar :size="80" class="about-card__avatar">岑</el-avatar>
+        <h2>岑兹博客</h2>
         <p>
           你好，欢迎来到我的个人博客。我是一名全栈开发者，专注于 Java 后端与 Vue 前端技术栈。
         </p>

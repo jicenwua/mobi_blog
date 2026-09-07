@@ -18,6 +18,7 @@ import { fetchFavoriteStatus } from '@/api/favorite'
 import FavoriteFolderDialog from '@/components/favorite/FavoriteFolderDialog.vue'
 import ArticleCommentSection from '@/components/article/ArticleCommentSection.vue'
 import { getCategoryLabel } from '@/constants/categories'
+import { SITE_NAME } from '@/constants/site'
 import { useUserStore } from '@/store/user'
 import { countWords, formatDate, formatMonthDay } from '@/utils/format'
 
@@ -37,7 +38,7 @@ const articleId = computed(() => route.params.id)
 const wordCount = computed(() => countWords(article.value?.content))
 const articleUrl = computed(() => {
   if (typeof window === 'undefined') return ''
-  return `${window.location.origin}/articles/${articleId.value}`
+  return `${window.location.origin}${import.meta.env.BASE_URL}articles/${articleId.value}`
 })
 
 async function loadArticle() {
@@ -46,7 +47,7 @@ async function loadArticle() {
   hasCatalog.value = false
   try {
     article.value = await fetchArticleDetail(articleId.value)
-    document.title = `${article.value.title} - Mobi Blog`
+    document.title = `${article.value.title} - ${SITE_NAME}`
     await loadFavoriteStatus()
   } catch {
     article.value = null

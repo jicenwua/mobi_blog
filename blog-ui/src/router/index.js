@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AppLayout from '@/layout/AppLayout.vue'
+import { SITE_NAME } from '@/constants/site'
 
 const routes = [
   {
@@ -125,11 +126,16 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
   scrollBehavior() {
     return { top: 0 }
   },
+})
+
+router.afterEach((to) => {
+  const pageTitle = to.meta.title
+  document.title = pageTitle ? `${pageTitle} - ${SITE_NAME}` : SITE_NAME
 })
 
 router.beforeEach((to) => {

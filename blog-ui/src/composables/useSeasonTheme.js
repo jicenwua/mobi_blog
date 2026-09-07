@@ -10,8 +10,13 @@ const SEASONS = [
 ]
 
 const SEASON_CLASSES = SEASONS.map((s) => `season-theme--${s.key}`)
+const DEFAULT_SEASON = 'spring'
 
-const activeSeason = ref(localStorage.getItem(STORAGE_KEY) || '')
+function resolveInitialSeason() {
+  return localStorage.getItem(STORAGE_KEY) ?? DEFAULT_SEASON
+}
+
+const activeSeason = ref(resolveInitialSeason())
 
 function applySeasonClass(season) {
   const el = document.documentElement

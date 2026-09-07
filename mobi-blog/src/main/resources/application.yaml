@@ -11,14 +11,14 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
-        username: ${NACOS_USERNAME}
+        username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD}
       config:
         server-addr: 127.0.0.1:8848
         namespace: public
         group: MINI_APP
         file-extension: yaml
-        username: ${NACOS_USERNAME}
+        username: ${NACOS_USERNAME:nacos}
         password: ${NACOS_PASSWORD}
 
 #nacos中配置
@@ -108,7 +108,7 @@ spring:
 #redis:
 #  enabled: true
 #  single:
-#    host: 127.0.0.1
+#    host: 127.0.0.1z
 #    port: 6379
 #    password: ${YOUR_PASSWORD}
 #

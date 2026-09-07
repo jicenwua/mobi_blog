@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Mobi Blog 博客服务启动类
+ * 岑兹博客服务启动类
  */
 @EnableAsync
 @EnableScheduling

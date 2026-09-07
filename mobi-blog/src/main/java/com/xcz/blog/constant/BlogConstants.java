@@ -15,6 +15,9 @@ public final class BlogConstants {
     private BlogConstants() {
     }
 
+    /** 网站名称 */
+    public static final String SITE_NAME = "岑兹博客";
+
     public static final RedissonClient redisson = RedisUtil.getRedisson(DatabaseEnum.DATABASE_3);
 
     /** 邮箱验证码 Redis 前缀（注册） */

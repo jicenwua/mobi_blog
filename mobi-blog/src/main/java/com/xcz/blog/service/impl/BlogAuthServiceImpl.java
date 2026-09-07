@@ -68,11 +68,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
         if (existsByEmail(email)) {
             throw new ServiceException("该邮箱已注册");
         }
-
-        String code = generateCode();
-        RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_CODE_KEY + email);
-        bucket.set(code, BlogConstants.EMAIL_CODE_TTL);
-        mailService.sendVerificationCode(email, code);
+        mailService.sendVerificationCode(email);
     }
 
     /**
@@ -154,10 +150,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
             throw new ServiceException("该邮箱未注册");
         }
 
-        String code = generateCode();
-        RBucket<String> bucket = redisson.getBucket(BlogConstants.EMAIL_CODE_KEY + email);
-        bucket.set(code, BlogConstants.EMAIL_CODE_TTL);
-        mailService.sendResetPasswordCode(email, code);
+        mailService.sendResetPasswordCode(email);
     }
 
     /**
@@ -216,14 +209,4 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
     }
 
 
-    /**
-     * 生成邮件验证码
-     *
-     * @return 6 位数字验证码
-     */
-    private String generateCode() {
-        int bound = (int) Math.pow(10, BlogConstants.EMAIL_CODE_LENGTH);
-        int code = ThreadLocalRandom.current().nextInt(bound / 10, bound);
-        return String.valueOf(code);
-    }
 }

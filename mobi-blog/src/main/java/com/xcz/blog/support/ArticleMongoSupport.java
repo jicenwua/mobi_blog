@@ -1,6 +1,7 @@
 package com.xcz.blog.support;
 
 import com.xcz.blog.constant.BlogConstants;
+import com.xcz.blog.domain.vo.CategorySnapshot;
 import com.xcz.blog.domain.enums.ArticleStatus;
 import com.xcz.blog.domain.mongo.Article;
 import com.xcz.blog.repository.ArticleRepository;
@@ -354,21 +355,25 @@ public class ArticleMongoSupport {
      * @return 分类编码列表
      */
     public List<String> getCategories() {
-        RBucket<List<String>> bucket = BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE);
-        List<String> categories = bucket.get();
-        if (categories != null) {
-            return categories;
+        RBucket<CategorySnapshot> bucket = BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE);
+        try {
+            CategorySnapshot cached = bucket.get();
+            if (cached != null) {
+                return cached.getCategories();
+            }
+        } catch (Exception e) {
+            bucket.delete();
         }
         Query query = Query.query(
                 Criteria.where("status").is(ArticleStatus.PUBLISHED.getCode())
                         .and("category").exists(true).ne("")
         );
-        categories = mongoTemplate.findDistinct(query, "category", Article.class, String.class)
+        List<String> categories = mongoTemplate.findDistinct(query, "category", Article.class, String.class)
                 .stream()
                 .filter(StringUtils::isNotEmpty)
                 .sorted()
                 .toList();
-        bucket.set(categories, Duration.ofHours(1));
+        bucket.set(new CategorySnapshot(categories), Duration.ofHours(1));
         return categories;
     }
 }

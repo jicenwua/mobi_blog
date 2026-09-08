@@ -4,7 +4,6 @@ import com.xcz.blog.constant.BlogConstants;
 import com.xcz.blog.domain.BlogUser;
 import com.xcz.blog.domain.dto.ArticleDTO;
 import com.xcz.blog.domain.dto.ArticleDraftDTO;
-import com.xcz.blog.domain.enums.ArticleCategory;
 import com.xcz.blog.domain.enums.ArticleStatus;
 import com.xcz.blog.domain.enums.RoleStatue;
 import com.xcz.blog.domain.mongo.Article;
@@ -55,7 +54,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public String createArticle(Long authorId, ArticleDTO dto) {
         requireUser(authorId);
-        validateCategory(dto.getCategory());
+        String category = validateCategory(dto.getCategory());
+        dto.setCategory(category);
 
         LocalDateTime now = LocalDateTime.now();
         Article article = articleRepository
@@ -80,6 +80,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setStatus(ArticleStatus.PUBLISHED.getCode());
         article.setUpdateTime(now);
         String articleId = articleRepository.save(article).getId();
+        BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE).delete();
         adminLogService.record(authorId, "文章", "发布文章", articleId,
                 String.format("发布文章《%s》", dto.getTitle()));
         return articleId;
@@ -96,7 +97,8 @@ public class ArticleServiceImpl implements ArticleService {
     public void updateArticle(Long authorId, String articleId, ArticleDTO dto) {
         Article article = articleMongoSupport.requireArticle(articleId);
         assertAuthor(authorId, article);
-        validateCategory(dto.getCategory());
+        String s = validateCategory(dto.getCategory());
+        dto.setCategory(s);
 
         article.setTitle(dto.getTitle());
         article.setSummary(dto.getSummary());
@@ -105,6 +107,7 @@ public class ArticleServiceImpl implements ArticleService {
         article.setTags(normalizeTags(dto.getTags()));
         article.setUpdateTime(LocalDateTime.now());
         articleRepository.save(article);
+        BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE).delete();
     }
 
     /**
@@ -130,6 +133,7 @@ public class ArticleServiceImpl implements ArticleService {
         } else {
             throw new ServiceException("没有权限删除该文章");
         }
+        BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE).delete();
         adminLogService.record(authorId, "文章", "删除文章", articleId,
                 String.format("删除文章《%s》", article.getTitle()));
     }
@@ -189,7 +193,7 @@ public class ArticleServiceImpl implements ArticleService {
         boolean sortByView = "view".equalsIgnoreCase(sortBy);
 
         if (hasCategory) {
-            validateCategory(category);
+            category = validateCategory(category);
         }
 
         if (hasKeyword) {
@@ -318,7 +322,7 @@ public class ArticleServiceImpl implements ArticleService {
             throw new ServiceException("草稿内容不能为空");
         }
         if (StringUtils.isNotEmpty(dto.getCategory())) {
-            validateCategory(dto.getCategory());
+            dto.setCategory(validateCategory(dto.getCategory()));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -408,11 +412,15 @@ public class ArticleServiceImpl implements ArticleService {
      *
      * @param category 分类编码
      */
-    private void validateCategory(String category) {
-        boolean valid = Arrays.stream(ArticleCategory.values())
-                .anyMatch(item -> item.getCode().equals(category));
-        if (!valid) {
-            throw new ServiceException("文章分类不合法");
-        }
+    private String validateCategory(String category) {
+        List<String> categories = articleMongoSupport.getCategories();
+        String pattern = category.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        String saved = categories.stream().filter(it ->it.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT).equals(pattern))
+                .findFirst()
+                .orElse(null);
+       if(saved != null){
+           return saved;
+       }
+        return category;
     }
 }

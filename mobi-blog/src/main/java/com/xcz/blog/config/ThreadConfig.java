@@ -1,4 +1,4 @@
-package com.xcz.blog.support;
+package com.xcz.blog.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

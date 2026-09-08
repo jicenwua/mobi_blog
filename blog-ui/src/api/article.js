@@ -23,6 +23,13 @@ export function fetchAllTags() {
   })
 }
 
+export function fetchAllCategories() {
+  return request({
+    url: '/blog/article/categories',
+    method: 'get',
+  })
+}
+
 export function fetchArticleDetail(articleId) {
   return request({
     url: `/blog/article/detail/${articleId}`,

@@ -66,3 +66,18 @@ CREATE TABLE IF NOT EXISTS `blog_admin_log` (
     KEY `idx_operator_id` (`operator_id`),
     KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员操作日志表';
+
+-- ----------------------------
+-- 黑名单配置表
+-- IP、用户 ID、关键词可单独或组合配置，命中任一项即拦截
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `blog_black_content` (
+    `id`              BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `black_ip`        VARCHAR(50)           DEFAULT NULL COMMENT '黑名单 IP',
+    `black_user_id`   BIGINT                DEFAULT NULL COMMENT '黑名单用户 ID',
+    `black_content`   VARCHAR(200)          DEFAULT NULL COMMENT '黑名单关键词',
+    `create_time`     DATETIME              DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_black_ip` (`black_ip`),
+    KEY `idx_black_user_id` (`black_user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='黑名单配置表';

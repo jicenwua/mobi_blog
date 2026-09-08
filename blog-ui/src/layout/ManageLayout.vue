@@ -9,6 +9,7 @@ import {
   Notebook,
   EditPen,
   Collection,
+  CircleClose,
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -22,6 +23,7 @@ const menuItems = [
   { key: 'articles', label: '文章管理', route: '/manage/articles', icon: Document },
   { key: 'users', label: '用户管理', route: '/manage/users', icon: User },
   { key: 'logs', label: '日志记录', route: '/manage/logs', icon: Notebook },
+  { key: 'blacklist', label: '黑名单', route: '/manage/blacklist', icon: CircleClose },
 ]
 
 const activeMenu = computed(() => route.meta.manageMenu || 'stats')

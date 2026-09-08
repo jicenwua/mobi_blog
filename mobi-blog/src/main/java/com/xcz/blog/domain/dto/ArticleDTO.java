@@ -2,6 +2,7 @@ package com.xcz.blog.domain.dto;
 
 import com.xcz.blog.domain.enums.ArticleCategory;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -31,6 +32,7 @@ public class ArticleDTO {
 
     /** 文章标签，最多 10 个，每个标签最长 20 字符 */
     @Size(max = 10, message = "标签数量不能超过 10 个")
+    @NotEmpty(message = "标签不能为空")
     private List<@Size(max = 20, message = "单个标签长度不能超过 20 个字符") String> tags;
 
 }

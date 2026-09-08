@@ -1,5 +1,6 @@
 package com.xcz.blog.support;
 
+import com.xcz.blog.constant.BlogConstants;
 import com.xcz.blog.domain.enums.ArticleStatus;
 import com.xcz.blog.domain.mongo.Article;
 import com.xcz.blog.repository.ArticleRepository;
@@ -7,6 +8,7 @@ import com.xcz.commons.core.exception.ServiceException;
 import com.xcz.commons.core.utils.StringUtils;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.redisson.api.RBucket;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -343,5 +346,29 @@ public class ArticleMongoSupport {
         return merged.values().stream()
                 .sorted(comparator)
                 .toList();
+    }
+
+    /**
+     * 查询已发布文章中出现过的分类（去重）
+     *
+     * @return 分类编码列表
+     */
+    public List<String> getCategories() {
+        RBucket<List<String>> bucket = BlogConstants.redisson.getBucket(BlogConstants.CATEGORY_CACHE);
+        List<String> categories = bucket.get();
+        if (categories != null) {
+            return categories;
+        }
+        Query query = Query.query(
+                Criteria.where("status").is(ArticleStatus.PUBLISHED.getCode())
+                        .and("category").exists(true).ne("")
+        );
+        categories = mongoTemplate.findDistinct(query, "category", Article.class, String.class)
+                .stream()
+                .filter(StringUtils::isNotEmpty)
+                .sorted()
+                .toList();
+        bucket.set(categories, Duration.ofHours(1));
+        return categories;
     }
 }

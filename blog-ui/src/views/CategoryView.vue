@@ -4,8 +4,8 @@ import SectionTitle from '@/components/common/SectionTitle.vue'
 import ArticleList from '@/components/article/ArticleList.vue'
 import CategoryCard from '@/components/category/CategoryCard.vue'
 import TagIconCard from '@/components/category/TagIconCard.vue'
-import { fetchAllTags, fetchArticles } from '@/api/article'
-import { ARTICLE_CATEGORIES } from '@/constants/categories'
+import { fetchAllCategories, fetchAllTags, fetchArticles } from '@/api/article'
+import { getCategoryLabel } from '@/constants/categories'
 import { getCategoryCover, getTagIcon, sortTags } from '@/utils/categoryAssets'
 
 const emit = defineEmits(['articles-loaded'])
@@ -13,6 +13,7 @@ const emit = defineEmits(['articles-loaded'])
 const viewMode = ref('category')
 const selectedCategory = ref('')
 const selectedTag = ref('')
+const categories = ref([])
 const categoryCounts = ref({})
 const tags = ref([])
 const loadingCategories = ref(false)
@@ -20,9 +21,7 @@ const loadingTags = ref(false)
 
 const sortedTags = computed(() => sortTags(tags.value))
 
-const activeCategoryLabel = computed(() =>
-  ARTICLE_CATEGORIES.find((item) => item.code === selectedCategory.value)?.label || '',
-)
+const activeCategoryLabel = computed(() => getCategoryLabel(selectedCategory.value))
 
 function handleLoaded(articles) {
   emit('articles-loaded', articles)
@@ -50,24 +49,26 @@ function backToTagGrid() {
   selectedTag.value = ''
 }
 
-async function loadCategoryCounts() {
+async function loadCategories() {
   loadingCategories.value = true
   try {
+    const codes = await fetchAllCategories() || []
+    categories.value = codes
+
     const results = await Promise.all(
-      ARTICLE_CATEGORIES.map(async (cat) => {
+      codes.map(async (code) => {
         const data = await fetchArticles({
-          category: cat.code,
+          category: code,
           pageNum: 1,
           pageSize: 1,
         })
-        return [cat.code, data?.totalElements || 0]
+        return [code, data?.totalElements || 0]
       }),
     )
     categoryCounts.value = Object.fromEntries(results)
   } catch {
-    categoryCounts.value = Object.fromEntries(
-      ARTICLE_CATEGORIES.map((cat) => [cat.code, 0]),
-    )
+    categories.value = []
+    categoryCounts.value = {}
   } finally {
     loadingCategories.value = false
   }
@@ -85,7 +86,7 @@ async function loadTags() {
 }
 
 onMounted(() => {
-  loadCategoryCounts()
+  loadCategories()
   loadTags()
 })
 </script>
@@ -114,12 +115,17 @@ onMounted(() => {
         <SectionTitle title="文章分类" />
         <div v-loading="loadingCategories" class="category-view__grid">
           <CategoryCard
-            v-for="cat in ARTICLE_CATEGORIES"
-            :key="cat.code"
-            :label="cat.label"
-            :cover="getCategoryCover(cat.code)"
-            :count="categoryCounts[cat.code] || 0"
-            @click="openCategory(cat.code)"
+            v-for="code in categories"
+            :key="code"
+            :label="getCategoryLabel(code)"
+            :cover="getCategoryCover(code)"
+            :count="categoryCounts[code] || 0"
+            @click="openCategory(code)"
+          />
+          <el-empty
+            v-if="!loadingCategories && !categories.length"
+            class="category-view__empty"
+            description="暂无分类"
           />
         </div>
       </template>

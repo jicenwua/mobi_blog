@@ -119,6 +119,12 @@ const routes = [
             component: () => import('@/views/manage/LogsView.vue'),
             meta: { title: '日志记录', manageMenu: 'logs', requiresAdmin: true },
           },
+          {
+            path: 'blacklist',
+            name: 'ManageBlacklist',
+            component: () => import('@/views/manage/BlacklistView.vue'),
+            meta: { title: '黑名单管理', manageMenu: 'blacklist', requiresAdmin: true },
+          },
         ],
       },
     ],

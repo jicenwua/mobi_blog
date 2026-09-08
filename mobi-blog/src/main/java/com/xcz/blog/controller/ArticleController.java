@@ -4,6 +4,7 @@ import com.xcz.blog.domain.dto.ArticleDTO;
 import com.xcz.blog.domain.dto.ArticleDraftDTO;
 import com.xcz.blog.domain.mongo.Article;
 import com.xcz.blog.service.ArticleService;
+import com.xcz.blog.support.ArticleMongoSupport;
 import com.xcz.commons.core.domain.ResponseEntity;
 import com.xcz.commons.core.utils.response.ResponseEntityUtils;
 import com.xcz.commons.security.annotation.Release;
@@ -36,6 +37,8 @@ public class ArticleController {
 
     @Resource
     private ArticleService articleService;
+    @Resource
+    private ArticleMongoSupport articleMongoSupport;
 
     /**
      * 创建文章
@@ -199,5 +202,15 @@ public class ArticleController {
     public ResponseEntity<List<Map<String, Object>>> listHotTags(
             @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntityUtils.ok(articleService.listHotTags(limit));
+    }
+
+    /**
+     * 获取所有的分类
+     * @return 系统中所有文章的分类列表
+     */
+    @Release
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>>  listAllCategories() {
+        return ResponseEntityUtils.ok(articleMongoSupport.getCategories());
     }
 }

@@ -1,16 +1,25 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SectionTitle from '@/components/common/SectionTitle.vue'
 import MarkdownEditor from '@/components/common/MarkdownEditor.vue'
 import { useArticleDraft } from '@/composables/useArticleDraft'
-import { createArticle } from '@/api/article'
-import { ARTICLE_CATEGORIES } from '@/constants/categories'
+import { createArticle, fetchAllCategories } from '@/api/article'
+import { getCategoryLabel } from '@/constants/categories'
 
 const router = useRouter()
 const formRef = ref()
 const submitting = ref(false)
+const categories = ref([])
+const loadingCategories = ref(false)
+
+const categoryOptions = computed(() =>
+  categories.value.map((code) => ({
+    value: code,
+    label: getCategoryLabel(code),
+  })),
+)
 
 const form = reactive({
   title: '',
@@ -41,6 +50,17 @@ const draftStatusText = computed(() => {
   if (lastSavedAt.value) return `草稿已保存于 ${lastSavedAt.value}`
   return '编辑内容将自动保存为草稿'
 })
+
+async function loadCategories() {
+  loadingCategories.value = true
+  try {
+    categories.value = await fetchAllCategories() || []
+  } catch {
+    categories.value = []
+  } finally {
+    loadingCategories.value = false
+  }
+}
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate().catch(() => false)
@@ -83,6 +103,8 @@ async function handleReset() {
 async function handleSaveDraft() {
   await saveDraft({ silent: false })
 }
+
+onMounted(loadCategories)
 </script>
 
 <template>
@@ -98,12 +120,20 @@ async function handleSaveDraft() {
       </el-form-item>
 
       <el-form-item label="分类" prop="category">
-        <el-select v-model="form.category" placeholder="请选择分类" style="width: 240px">
+        <el-select
+          v-model="form.category"
+          placeholder="请选择或输入分类"
+          filterable
+          allow-create
+          default-first-option
+          :loading="loadingCategories"
+          style="width: 240px"
+        >
           <el-option
-            v-for="item in ARTICLE_CATEGORIES"
-            :key="item.code"
+            v-for="item in categoryOptions"
+            :key="item.value"
             :label="item.label"
-            :value="item.code"
+            :value="item.value"
           />
         </el-select>
       </el-form-item>

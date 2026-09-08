@@ -35,4 +35,12 @@ public final class BlogConstants {
 
     /*** 文章图片保存地址 **/
     public static final String IMAGE_PATH = "blog/image/";
+
+    public static final String CATEGORY_CACHE = "blog:category";
+
+    /** 黑名单规则快照缓存 */
+    public static final String BLACKLIST_CACHE = "blog:blacklist:snapshot";
+
+    /** 黑名单缓存有效期 */
+    public static final Duration BLACKLIST_CACHE_TTL = Duration.ofHours(1);
 }

@@ -1,11 +1,15 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import router from '@/router'
+import { useUserStore } from '@/store/user'
 import { clearAuth, getToken } from '@/utils/auth'
 
 const service = axios.create({
   baseURL: `${import.meta.env.VITE_APP_BASE_API}/blog`,
   timeout: 15000,
 })
+
+let handlingUnauthorized = false
 
 function resolveErrorMessage(error) {
   const data = error.response?.data
@@ -48,6 +52,33 @@ function resolveErrorMessage(error) {
   return '网络异常'
 }
 
+function handleUnauthorized(message) {
+  if (handlingUnauthorized) return
+  handlingUnauthorized = true
+
+  try {
+    const userStore = useUserStore()
+    userStore.logout()
+  } catch {
+    clearAuth()
+  }
+
+  ElMessage.warning(message || '登录已过期，请重新登录')
+
+  const currentPath = router.currentRoute.value.fullPath
+  const shouldRedirect = router.currentRoute.value.name !== 'Login'
+  if (shouldRedirect) {
+    router.push({
+      path: '/login',
+      query: currentPath && currentPath !== '/' ? { redirect: currentPath } : undefined,
+    }).finally(() => {
+      handlingUnauthorized = false
+    })
+  } else {
+    handlingUnauthorized = false
+  }
+}
+
 service.interceptors.request.use(
   (config) => {
     const token = getToken()
@@ -63,6 +94,10 @@ service.interceptors.response.use(
   (response) => {
     const res = response.data
     if (res.code !== undefined && res.code !== 200) {
+      if (res.code === 401) {
+        handleUnauthorized(res.msg || '登录已过期，请重新登录')
+        return Promise.reject(new Error(res.msg || '登录已过期，请重新登录'))
+      }
       ElMessage.error(res.msg || '请求失败')
       return Promise.reject(new Error(res.msg || '请求失败'))
     }
@@ -73,8 +108,7 @@ service.interceptors.response.use(
     const message = resolveErrorMessage(error)
 
     if (status === 401) {
-      clearAuth()
-      ElMessage.warning(message || '登录已过期，请重新登录')
+      handleUnauthorized(message || '登录已过期，请重新登录')
     } else {
       ElMessage.error(message)
     }

@@ -12,8 +12,9 @@ const tagCount = ref(0)
 const categoryCount = ref(0)
 
 const profile = computed(() => ({
-  nickname: 'Mobi',
+  nickname: '岑兹',
   bio: '热爱技术，分享生活。专注于后端架构与前端工程化。',
+  github: 'https://github.com/jicenwua',
   categoryCount: categoryCount.value,
   articleCount: articleCount.value,
   tagCount: tagCount.value,

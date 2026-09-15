@@ -21,7 +21,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -57,7 +56,6 @@ public class CommentServiceImpl implements CommentService {
      * @return 新评论 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public String addComment(Long userId, CommentDTO dto) {
         requireUser(userId);
         articleMongoSupport.requireArticle(dto.getArticleId());
@@ -101,7 +99,6 @@ public class CommentServiceImpl implements CommentService {
      * @param commentId 评论 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void deleteComment(Long userId, String commentId) {
         BlogUser blogUser = blogUserMapper.selectById(userId);
         Comment comment = commentRepository.findById(commentId)

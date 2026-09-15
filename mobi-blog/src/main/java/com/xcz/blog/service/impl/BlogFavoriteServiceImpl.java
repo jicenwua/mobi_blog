@@ -83,7 +83,6 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @param favoriteId 收藏夹 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void deleteFolder(Long userId, Long favoriteId) {
         if (favoriteId == null || favoriteId == VIRTUAL_DEFAULT_FOLDER_ID) {
             throw new ServiceException("默认收藏夹不可删除");
@@ -149,7 +148,6 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @param articleId  文章 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void addArticle(Long userId, Long favoriteId, String articleId) {
         Long resolvedFavoriteId = resolveFavoriteId(userId, favoriteId);
         requireFolder(userId, resolvedFavoriteId);
@@ -180,7 +178,6 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @param articleId  文章 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void removeArticle(Long userId, Long favoriteId, String articleId) {
         Long resolvedFavoriteId = resolveFavoriteId(userId, favoriteId, false);
         if (resolvedFavoriteId == null) {
@@ -242,7 +239,6 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @return 切换后的收藏状态
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public boolean toggleFavorite(Long userId, String articleId) {
         if (isFavorited(userId, articleId)) {
             List<BlogFavoriteArticle> relations =

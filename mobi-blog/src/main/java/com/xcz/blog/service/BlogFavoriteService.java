@@ -37,6 +37,12 @@ public interface BlogFavoriteService {
     void deleteFolder(Long userId, Long favoriteId);
 
     /**
+     * 删除收藏夹中文章
+     * @param articleId 文章id
+     */
+    void deleteArticle(String articleId);
+
+    /**
      * 分页查询用户收藏夹列表
      *
      * @param userId   用户 ID

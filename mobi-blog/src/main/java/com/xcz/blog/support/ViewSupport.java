@@ -50,15 +50,20 @@ public class ViewSupport {
 
     /**
      * 缓存新增观看量
+     * <p>同一用户/IP 在 24h 内只计一次浏览量。
+     * <p>使用 {@code SETNX + EXPIRE} 的原子版本 {@link RBucket#setIfAbsent(Object, Duration)}
+     * 避免原实现中 {@code bucket.expire(...)} 在 key 不存在时不会创建 key 导致去重失效的问题。
+     *
      * @param articleId 文章id
+     * @param id        用户ID或IP
      */
-    public static void addView(String articleId,String id) {
+    public static void addView(String articleId, String id) {
         RBucket<Object> bucket = redisson.getBucket(VIEW + articleId + ":" + id);
-        //如果有该键，则增加观看量
-        if(bucket.isExists()) {
-            return ;
+        // 原子地「不存在则创建并设置 24h 过期」；返回 false 表示已存在（去重命中）
+        boolean created = bucket.setIfAbsent(Boolean.TRUE, Duration.ofDays(1));
+        if (!created) {
+            return;
         }
-        bucket.expire(Duration.ofDays(1));
         redisson.getAtomicLong(VIEW + articleId).incrementAndGet();
     }
 

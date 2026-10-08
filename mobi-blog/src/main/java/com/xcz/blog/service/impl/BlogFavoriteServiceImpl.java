@@ -38,7 +38,7 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @return 收藏夹 ID
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public Long createFolder(Long userId, FavoriteFolderDTO dto) {
         String folderName = dto.getFavoriteName().trim();
         if (DEFAULT_FOLDER_NAME.equals(folderName)) {
@@ -64,7 +64,7 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
      * @param dto        收藏夹信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void updateFolder(Long userId, Long favoriteId, FavoriteFolderDTO dto) {
         BlogFavorite folder = requireFolder(userId, favoriteId);
         if (isDefaultFolder(folder)) {
@@ -102,6 +102,13 @@ public class BlogFavoriteServiceImpl implements BlogFavoriteService {
         for (BlogFavoriteArticle item : articles) {
             syncFavoriteCountOnRemove(userId, item.getArticleId());
         }
+    }
+
+    @Override
+    public void deleteArticle(String articleId) {
+        blogFavoriteArticleMapper.delete(
+                new LambdaQueryWrapper<BlogFavoriteArticle>().eq(BlogFavoriteArticle::getArticleId,articleId)
+        );
     }
 
     /**

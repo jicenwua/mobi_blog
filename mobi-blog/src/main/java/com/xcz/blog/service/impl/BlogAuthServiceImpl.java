@@ -77,7 +77,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
      * @param dto 账号信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void register(RegisterDTO dto) {
         String email = dto.getEmail().trim().toLowerCase();
         verifyCode(email, dto.getVerificationCode());
@@ -159,7 +159,7 @@ public class BlogAuthServiceImpl extends ServiceImpl<BlogUserMapper, BlogUser> i
      * @param dto 重置信息
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(value = "transactionManager", rollbackFor = Exception.class)
     public void resetPassword(ResetPasswordDTO dto) {
         String email = dto.getEmail().trim().toLowerCase();
         verifyCode(email, dto.getVerificationCode());

@@ -11,6 +11,7 @@ import com.xcz.blog.mapper.BlogUserMapper;
 import com.xcz.blog.repository.ArticleRepository;
 import com.xcz.blog.service.AdminLogService;
 import com.xcz.blog.service.ArticleService;
+import com.xcz.blog.service.BlogFavoriteService;
 import com.xcz.blog.support.ArticleMongoSupport;
 import com.xcz.blog.support.TagUtils;
 import com.xcz.blog.support.UserDisplaySupport;
@@ -43,6 +44,7 @@ public class ArticleServiceImpl implements ArticleService {
     private final UserDisplaySupport userDisplaySupport;
     private final UploadService uploadService;
     private final AdminLogService adminLogService;
+    private final BlogFavoriteService blogFavoriteService;
 
     /**
      * 创建文章
@@ -128,8 +130,10 @@ public class ArticleServiceImpl implements ArticleService {
                 throw new ServiceException("没有权限删除该文章");
             }
             articleRepository.deleteById(articleId);
+            blogFavoriteService.deleteArticle(articleId);
         } else if (RoleStatue.isMaster(blogUser.getRole())) {
             articleRepository.deleteById(articleId);
+            blogFavoriteService.deleteArticle(articleId);
         } else {
             throw new ServiceException("没有权限删除该文章");
         }

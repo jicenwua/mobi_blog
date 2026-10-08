@@ -1,18 +1,22 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import SectionTitle from '@/components/common/SectionTitle.vue'
 import MarkdownEditor from '@/components/common/MarkdownEditor.vue'
 import { useArticleDraft } from '@/composables/useArticleDraft'
-import { createArticle, fetchAllCategories } from '@/api/article'
+import { createArticle, fetchAllCategories, fetchArticleDetail, updateArticle } from '@/api/article'
 import { getCategoryLabel } from '@/constants/categories'
 
+const route = useRoute()
 const router = useRouter()
 const formRef = ref()
 const submitting = ref(false)
+const loading = ref(false)
 const categories = ref([])
 const loadingCategories = ref(false)
+const editId = computed(() => route.query.id || null)
+const isEdit = computed(() => !!editId.value)
 
 const categoryOptions = computed(() =>
   categories.value.map((code) => ({
@@ -43,9 +47,18 @@ function parseTags(input) {
     .filter(Boolean)
 }
 
-const { saving, lastSavedAt, saveDraft, clearDraft, markPublished } = useArticleDraft(form, parseTags)
+const { saving, lastSavedAt, saveDraft, clearDraft, markPublished } = useArticleDraft(
+  form,
+  parseTags,
+  { editId: editId.value },
+)
 
 const draftStatusText = computed(() => {
+  if (isEdit.value) {
+    if (saving.value) return '保存中...'
+    if (lastSavedAt.value) return `上次保存于 ${lastSavedAt.value}`
+    return '修改发布后立即生效'
+  }
   if (saving.value) return '草稿保存中...'
   if (lastSavedAt.value) return `草稿已保存于 ${lastSavedAt.value}`
   return '编辑内容将自动保存为草稿'
@@ -62,21 +75,51 @@ async function loadCategories() {
   }
 }
 
+async function loadArticleForEdit() {
+  if (!editId.value) return
+  loading.value = true
+  try {
+    const article = await fetchArticleDetail(editId.value)
+    if (!article) {
+      ElMessage.error('未找到该文章')
+      router.replace('/manage/my-articles')
+      return
+    }
+    form.title = article.title || ''
+    form.summary = article.summary || ''
+    form.content = article.content || ''
+    form.category = article.category || ''
+    form.tagsInput = (article.tags || []).join(',')
+    lastSavedAt.value = article.updateTime || article.createTime
+  } catch {
+    /* error handled by request interceptor */
+    router.replace('/manage/my-articles')
+  } finally {
+    loading.value = false
+  }
+}
+
 async function handleSubmit() {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
 
   submitting.value = true
   try {
-    await createArticle({
+    const payload = {
       title: form.title.trim(),
       summary: form.summary.trim(),
       content: form.content.trim(),
       category: form.category,
       tags: parseTags(form.tagsInput),
-    })
-    markPublished()
-    ElMessage.success('文章发布成功')
+    }
+    if (isEdit.value) {
+      await updateArticle(editId.value, payload)
+      ElMessage.success('文章修改成功')
+    } else {
+      await createArticle(payload)
+      markPublished()
+      ElMessage.success('文章发布成功')
+    }
     router.push('/manage/my-articles')
   } finally {
     submitting.value = false
@@ -90,9 +133,14 @@ async function handleReset() {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
     })
-    await clearDraft()
-    formRef.value?.resetFields()
-    form.tagsInput = ''
+    if (isEdit.value) {
+      // 编辑模式下重置：重新拉取原文
+      await loadArticleForEdit()
+    } else {
+      await clearDraft()
+      formRef.value?.resetFields()
+      form.tagsInput = ''
+    }
   } catch (e) {
     if (e !== 'cancel') {
       /* handled by interceptor */
@@ -101,16 +149,24 @@ async function handleReset() {
 }
 
 async function handleSaveDraft() {
+  if (isEdit.value) {
+    // 编辑模式下，保存草稿等价于直接保存修改
+    await handleSubmit()
+    return
+  }
   await saveDraft({ silent: false })
 }
 
-onMounted(loadCategories)
+onMounted(async () => {
+  await loadCategories()
+  await loadArticleForEdit()
+})
 </script>
 
 <template>
-  <section class="manage-page">
+  <section class="manage-page" v-loading="loading">
     <div class="publish-header">
-      <SectionTitle title="发布文章" />
+      <SectionTitle :title="isEdit ? '修改文章' : '发布文章'" />
       <span class="draft-status" :class="{ 'is-saving': saving }">{{ draftStatusText }}</span>
     </div>
 
@@ -161,9 +217,11 @@ onMounted(loadCategories)
       </el-form-item>
 
       <el-form-item>
-        <el-button type="primary" :loading="submitting" @click="handleSubmit">发布</el-button>
-        <el-button :loading="saving" @click="handleSaveDraft">保存草稿</el-button>
-        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit">
+          {{ isEdit ? '保存修改' : '发布' }}
+        </el-button>
+        <el-button v-if="!isEdit" :loading="saving" @click="handleSaveDraft">保存草稿</el-button>
+        <el-button @click="handleReset">{{ isEdit ? '撤销修改' : '重置' }}</el-button>
       </el-form-item>
     </el-form>
   </section>

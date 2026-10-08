@@ -57,7 +57,7 @@ public class BlackContentSupport {
     }
 
     /**
-     * 判断文本是否命中违禁词正则（忽略大小写，{@link Pattern#find()} 部分匹配）。
+     * 判断文本是否命中违禁词正则（忽略大小写，部分匹配）。
      *
      * @param content 待校验文本
      * @return 命中返回 true

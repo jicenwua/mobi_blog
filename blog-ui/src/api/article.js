@@ -53,6 +53,14 @@ export function createArticle(data) {
   })
 }
 
+export function updateArticle(articleId, data) {
+  return request({
+    url: `/blog/article/${articleId}`,
+    method: 'put',
+    data,
+  })
+}
+
 export function uploadArticleImages(files) {
   const formData = new FormData()
   files.forEach((file) => formData.append('images', file))

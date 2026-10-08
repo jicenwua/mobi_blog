@@ -7,12 +7,13 @@ import { getToken } from '@/utils/auth'
 const AUTO_SAVE_INTERVAL = 30_000
 const DRAFT_API_URL = `${import.meta.env.VITE_APP_BASE_API}/blog/blog/article/draft`
 
-export function useArticleDraft(form, parseTags) {
+export function useArticleDraft(form, parseTags, options = {}) {
+  const { editId = null, onLoaded } = options
   const draftId = ref(null)
   const saving = ref(false)
   const lastSavedAt = ref(null)
   const draftLoaded = ref(false)
-  const skipDraftSave = ref(false)
+  const skipDraftSave = ref(editId !== null)
 
   let lastSnapshot = ''
   let autoSaveTimer = null
@@ -151,6 +152,12 @@ export function useArticleDraft(form, parseTags) {
   }
 
   onMounted(async () => {
+    if (editId) {
+      // 编辑模式：不加载/保存草稿，避免覆盖正在编辑的文章
+      draftLoaded.value = true
+      onLoaded?.()
+      return
+    }
     await loadDraft()
     startAutoSave()
     document.addEventListener('visibilitychange', handleVisibilityChange)

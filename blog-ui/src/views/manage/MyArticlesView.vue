@@ -61,6 +61,14 @@ async function handleDelete(row) {
   }
 }
 
+function handleEdit(row) {
+  router.push({ path: '/manage/publish', query: { id: row.id } })
+}
+
+function handleContinueEdit(row) {
+  router.push({ path: '/manage/publish', query: { id: row.id, draft: '1' } })
+}
+
 watch(sortBy, handleSortChange)
 
 onMounted(loadArticles)
@@ -100,15 +108,23 @@ onMounted(loadArticles)
       <el-table-column prop="commentCount" label="评论" width="80" align="center" />
       <el-table-column prop="favoriteCount" label="收藏" width="80" align="center" />
       <el-table-column prop="createTime" label="发布时间" width="170" />
-      <el-table-column label="操作" width="160" fixed="right">
+      <el-table-column label="操作" width="180" fixed="right">
         <template #default="{ row }">
           <el-button
             v-if="row.status === 'draft'"
             type="primary"
             link
-            @click="router.push('/manage/publish')"
+            @click="handleContinueEdit(row)"
           >
             继续编辑
+          </el-button>
+          <el-button
+            v-else
+            type="primary"
+            link
+            @click="handleEdit(row)"
+          >
+            修改
           </el-button>
           <el-button type="danger" link @click="handleDelete(row)">删除</el-button>
         </template>
